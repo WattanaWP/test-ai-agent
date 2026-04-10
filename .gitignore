@@ -1,0 +1,25 @@
+# Nuxt dev server
+.output
+.data
+.nuxt
+.env
+.env.*
+!.env.example
+
+# IDEs
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+.history
+
+# Dependencies
+node_modules
+.yarn
+.pnp
+
+# Bun
+bun.lockb
+
+# Build
+dist
