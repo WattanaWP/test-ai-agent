@@ -74,6 +74,7 @@
 
 <script setup lang="ts">
 import type { DaySlot } from "~/types/diary";
+import { todayKey, offsetKey } from "~/utils/dateKeys";
 
 definePageMeta({ layout: "sidebar" });
 
@@ -95,16 +96,10 @@ const tabs = [
   { key: "tomorrow" as DaySlot, label: "⏭ Tomorrow" },
 ];
 
-const offsetKey = (days: number): string => {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-};
-
 const activeDateKey = computed(() => {
   if (activeTab.value === "yesterday") return offsetKey(-1);
   if (activeTab.value === "tomorrow") return offsetKey(1);
-  return new Date().toISOString().slice(0, 10);
+  return todayKey();
 });
 
 const formattedDate = computed(() =>

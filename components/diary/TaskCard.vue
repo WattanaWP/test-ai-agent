@@ -56,6 +56,7 @@
         ✏️
       </button>
       <button
+        @mousedown.prevent
         @click="$emit('delete', task.id)"
         class="p-1 text-gray-400 hover:text-red-500 transition-colors text-xs"
         title="Delete"
