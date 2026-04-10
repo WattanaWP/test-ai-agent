@@ -4,7 +4,7 @@
       >📝 Daily Note</label
     >
     <textarea
-      v-model="noteText"
+      :value="noteText"
       @input="handleInput"
       placeholder="How was your day? Write anything here..."
       rows="4"
@@ -28,10 +28,13 @@ watch(
 );
 
 let saveTimer: ReturnType<typeof setTimeout>;
-const handleInput = () => {
+const handleInput = (e: Event) => {
+  noteText.value = (e.target as HTMLTextAreaElement).value;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     saveNote(props.dateKey, noteText.value);
   }, 600);
 };
+
+onUnmounted(() => clearTimeout(saveTimer));
 </script>

@@ -23,7 +23,7 @@ const mockUsers: Record<UserRole, AuthUser> = {
 };
 
 export const useAuth = () => {
-  const currentUser = useState<AuthUser>("auth.user", () => mockUsers.user);
+  const currentUser = useState<AuthUser>("auth.user", () => mockUsers.guest);
 
   const setRole = (role: UserRole) => {
     currentUser.value = mockUsers[role];
