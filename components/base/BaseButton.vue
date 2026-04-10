@@ -1,6 +1,6 @@
 <template>
   <button
-    v-if="isVisible"
+    v-show="isVisible"
     :type="type"
     :disabled="disabled || loading"
     :class="[

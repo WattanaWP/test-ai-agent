@@ -1,16 +1,8 @@
 import type { Task, DaySlot } from "~/types/diary";
+import { todayKey, offsetKey } from "~/utils/dateKeys";
 
 const STORAGE_KEY = "diary_tasks";
-
-function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function offsetKey(days: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
+const TITLE_MAX_LENGTH = 500;
 
 export const useTasks = () => {
   const tasks = useState<Task[]>("tasks", () => {
@@ -30,7 +22,9 @@ export const useTasks = () => {
     }
   };
 
-  // Auto-rollover: pending "today" tasks from previous days → move to today
+  // Auto-rollover:
+  // - pending "today" tasks from past days → move to today
+  // - pending "tomorrow" tasks whose dateKey is today or past → promote to today
   const rollover = () => {
     const today = todayKey();
     let changed = false;
@@ -38,6 +32,14 @@ export const useTasks = () => {
       if (t.day === "today" && t.status === "pending" && t.dateKey !== today) {
         changed = true;
         return { ...t, dateKey: today };
+      }
+      if (
+        t.day === "tomorrow" &&
+        t.status === "pending" &&
+        t.dateKey <= today
+      ) {
+        changed = true;
+        return { ...t, day: "today" as DaySlot, dateKey: today };
       }
       return t;
     });
@@ -51,7 +53,7 @@ export const useTasks = () => {
     return {
       yesterday: tasks.value.filter(
         (t) =>
-          t.day === "yesterday" ||
+          (t.day === "yesterday" && t.dateKey === yesterday) ||
           (t.day === "today" && t.dateKey === yesterday),
       ),
       today: tasks.value.filter(
@@ -77,6 +79,8 @@ export const useTasks = () => {
   });
 
   const addTask = (title: string, day: DaySlot) => {
+    const trimmed = title.trim();
+    if (!trimmed || trimmed.length > TITLE_MAX_LENGTH) return;
     const dateKey =
       day === "yesterday"
         ? offsetKey(-1)
@@ -85,7 +89,7 @@ export const useTasks = () => {
           : todayKey();
     tasks.value.push({
       id: crypto.randomUUID(),
-      title: title.trim(),
+      title: trimmed,
       day,
       status: "pending",
       dateKey,
@@ -103,9 +107,11 @@ export const useTasks = () => {
   };
 
   const editTask = (id: string, title: string) => {
+    const trimmed = title.trim();
+    if (!trimmed || trimmed.length > TITLE_MAX_LENGTH) return;
     const task = tasks.value.find((t) => t.id === id);
     if (task) {
-      task.title = title.trim();
+      task.title = trimmed;
       persist();
     }
   };
